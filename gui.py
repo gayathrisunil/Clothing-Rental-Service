@@ -229,19 +229,20 @@ def storeclick():
 
 	def add_storedet_Click():
 		storename= storeNameEntry.get()
-		storeph=int(storePhEntry.get())
+		storeph=storePhEntry.get()
 		storeline1=line1.get()
 		storeline2=line2.get()
 		storecity=city.get()
 		storestate=state.get()
-		storezip=int(zipcode.get())
+		storezip=zipcode.get()
 		s_id='4350'
 
 		conn= psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
 		cur= conn.cursor()
 		
-		insert_query= "insert into store values (%s, %s, row(%s, %s, %s, %s, %s) ,%s)"
+		insert_query= """insert into store values (%s, %s, row(%s, %s, %s, %s, %s) ,%s)"""
 		record=(s_id,storename,storeline1,storeline2,city,storestate,storezip,storeph)
+
 		cur.execute(insert_query,record)
 
 		conn.commit()
@@ -267,9 +268,10 @@ def viewClothesClick():
 	top= Toplevel()
 	top.title("Clothing Items Available")
 
-	viewClothesFrame =LabelFrame(top, text="Shop for clothes", padx=10, pady=10)
+	viewClothesFrame =LabelFrame(top, text="Order details", padx=10, pady=10)
 	viewClothesFrame.pack(padx=5, pady=5)
 
+	conn= psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
 	cur=conn.cursor()
 
 	cur.execute("select img from clothes")
@@ -277,34 +279,95 @@ def viewClothesClick():
 	imagelist= []
 	for line in imgtup:
 		imagelist.append(str(line[0]))
-	cur.execute("select colour, item_name, price, size from clothes")
+	cur.execute("select colour, item_name, price, size, material from clothes")
 	records=cur.fetchall()
 	
 	i=2
-	x=0
 	for row in records:
 		j=2
 		for val in row:
 			displayLabel= Label(viewClothesFrame, text= str(val))
 			displayLabel.grid(row=i, column=j)
-			j+=1
-		imgpath=str(imagelist[x])	
-		x+=1
-		# clothesimg =ImageTk.PhotoImage(Image.open(imgpath))
-		# imgglabel= Label(viewClothesFrame, image=clothesimg)
-		# imgglabel.grid(row=i, column=j+1)	
+			j+=1	
 		i+=1
+
+	# for x in range(5):
+	# 	imgpath=str(imagelist[x])
+	# 	clothesimg =ImageTk.PhotoImage(Image.open(imgpath))
+	# 	imgglabel= Label(viewClothesFrame, image=clothesimg)
+	# 	imgglabel.grid(row=x+1, column=7)
 
 	conn.commit()
 	cur.close()
 	conn.close()
 
 def viewOrderClick():
-	pass
+	top= Toplevel()
+	top.title("Order details")
+
+	viewOrderFrame =LabelFrame(top, text="View order status", padx=10, pady=10)
+	viewOrderFrame.pack(padx=5, pady=5)
+
+	ordernoLabel= Label(viewOrderFrame, text="Enter order number").grid(row=3, column=1)
+	ordernoEntry =Entry(viewOrderFrame, width=40)
+	ordernoEntry.grid(row=3, column=2)
+
+	filler= Label(viewOrderFrame, text=" ").grid(row=4, column=1)
+
+	def orderstat_click():
+		orderno= ordernoEntry.get()
+
+		conn= psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
+		cur=conn.cursor()
+
+		retrievequery="select colour, item_name, o_status, p_status from order_det, payment, clothes \
+		where order_det.order_no =%s and order_det.order_no = payment.order_id and clothes.item_id=order_det.item_id" 
+		matchval=(orderno,)
+
+		cur.execute(retrievequery,matchval)
+		record=cur.fetchall()
+		j=1
+		for row in record:
+			for stat in row:
+			 	displayLabel=Label(viewOrderFrame, text=str(stat))
+			 	displayLabel.grid(row=6, column=j)
+			 	j+=1
+		
+		conn.commit()
+		cur.close()
+		conn.close()
+
+	search_btn= Button(viewOrderFrame, text="Get order status", command=orderstat_click)
+	search_btn.grid(row=5, column=2)
+
 
 
 def returnOrderClick():
-	pass
+	top= Toplevel()
+	top.title("Return order")
+
+	returnFrame =LabelFrame(top, text="Return items", padx=20, pady=20)
+	returnFrame.pack(padx=10, pady=10)
+
+	returnFrameHeader = Label(returnFrame, text="Enter the order number of the item").grid(row=1, column=1)
+	orderNoEntry= Entry(returnFrame, width=30)
+	orderNoEntry.grid(row=3, column=1)
+
+	def EnterBtnClick():
+		pass
+		#retrieve order details
+
+	EnterButton= Button(returnFrame, text="Enter", command= EnterBtnClick)
+	EnterButton.grid(row=3,column=2)
+
+	#button- confirm order return? window that says pickup for this order is scheduled
+
+	#label and text box to submit store rating, button to trigger event and push to db
+
+
+
+
+	
 
 
 #mainframe
