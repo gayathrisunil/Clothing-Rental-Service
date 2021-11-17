@@ -357,6 +357,22 @@ def returnOrderClick():
 		pass
 		#retrieve order details
 
+		conn= psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
+		cur= conn.cursor()
+
+		query= """update order_det set returned=true where order_no= %s"""
+		matchval=(orderNoEntry.get(),)
+
+		cur.execute(query, matchval)
+
+		displayLabel=Label(returnFrame, text="Return initiated")
+		displayLabel.grid(row=5, column=1)
+
+		conn.commit()
+		cur.close()
+		conn.close()
+
+
 	EnterButton= Button(returnFrame, text="Enter", command= EnterBtnClick)
 	EnterButton.grid(row=3,column=2)
 
