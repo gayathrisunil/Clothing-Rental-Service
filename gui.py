@@ -11,7 +11,7 @@ DB_PASS= '1612'
 root =Tk()  
 root.title('Clothing rental service')
 root.iconbitmap('img\icon.ico')
-root.geometry("500x300")
+root.geometry("800x400")
 
 def sellerclick():
 	global img1
@@ -22,7 +22,7 @@ def sellerclick():
 	sellerFrame =LabelFrame(top, text="Seller details", padx=10, pady=10)
 	sellerFrame.pack(padx=5, pady=5)
 
-	sellerFrameHeader = Label(sellerFrame, text="Enter details and join the community!  ").grid(row=1, column=1)
+	sellerFrameHeader = Label(sellerFrame, text="Enter details and join the community!", font=("Helvetica", 16), justify=CENTER).grid(row=1, column=1)
 
 	img1 =ImageTk.PhotoImage(Image.open("img\seller.png"))
 	img1label= Label(sellerFrame, image=img1).grid(row=2, column=1)
@@ -390,7 +390,7 @@ def returnOrderClick():
 mainFrame =LabelFrame(root, text="", padx=20, pady=20)
 mainFrame.pack(padx=10, pady=10)
 
-mainLabel= Label(mainFrame, text="Clothing Rental service").grid(row=1, column=2)
+mainLabel= Label(mainFrame, text="Clothing Rental service", font=("Helvetica", 25)).grid(row=1, column=2)
 
 landingimg =ImageTk.PhotoImage(Image.open("img\icon.png"))
 landinglabel= Label(mainFrame, image=landingimg).grid(row=2, column=2)
