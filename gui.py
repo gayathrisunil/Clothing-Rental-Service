@@ -11,7 +11,7 @@ DB_PASS= '1612'
 root =Tk()  
 root.title('Clothing rental service')
 root.iconbitmap('img\icon.ico')
-root.geometry("1200x600")
+root.geometry("1100x550")
 
 def sellerclick():
 	global img1
@@ -270,16 +270,16 @@ def viewClothesClick():
 	global cimg
 	top= Toplevel()
 	top.title("Clothing Items Available")
-	top.geometry("800x500")
+	top.geometry("900x600")
 
-	viewClothesFrame =LabelFrame(top, text="Order details", padx=20, pady=20)
-	viewClothesFrame.pack(padx=15, pady=15)
+	viewClothesFrame =LabelFrame(top, text="Order details", padx=15, pady=15)
+	viewClothesFrame.pack(padx=10, pady=10)
 
 	cimg =ImageTk.PhotoImage(Image.open("img\cart.png"))
 	imglabel= Label(viewClothesFrame, image=cimg).grid(row=0, column=4)
 
 
-	clotheslabel= Label(viewClothesFrame, text="Clothes available to rent:", font=("Helvetica", 12)).grid(row=1, column=2)
+	clotheslabel= Label(viewClothesFrame, text="Clothes available to rent:", font=("Helvetica", 11)).grid(row=1, column=2)
 	filler=Label(viewClothesFrame, text= "").grid(row=2, column=2)
 
 	conn= psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
@@ -293,15 +293,12 @@ def viewClothesClick():
 	cur.execute("select colour, item_name, price, size, material from clothes")
 	records=cur.fetchall()
 
-	def viewImgClick(x):
-		pass
-		"""
-		global img
-		path=str(imagelist[x])
-		top1= Toplevel()
-		img =ImageTk.PhotoImage(Image.open(path))
-		imglabel= Label(top1, image=img).grid(row=2, column=1)
-		"""
+	# def viewImgClick(i):
+	# 	global img
+	# 	path=str(imagelist[i])
+	# 	top1= Toplevel()
+	# 	img =ImageTk.PhotoImage(Image.open(path))
+	# 	imglabel= Label(top1, image=img).grid(row=2, column=1)
 	
 	i=3
 	for row in records:
@@ -310,37 +307,95 @@ def viewClothesClick():
 			displayLabel= Label(viewClothesFrame, text= str(val), font=("Helvetica", 10))
 			displayLabel.grid(row=i, column=j)
 			j+=1	
-		viewimg = Button(viewClothesFrame, text="View image of clothing", font=("Helvetica", 10), command=viewImgClick(i-3))
-		viewimg.grid(row=i, column=j+1)
+		# viewimg = Button(viewClothesFrame, text="View image of clothing", font=("Helvetica", 10), command=viewImgClick(i-3))
+		# viewimg.grid(row=i, column=j+1)
 		i+=1
+
+	def submitClick():
+		conn= psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
+		cur= conn.cursor()
+
+		order_no=11015
+		#query to get item_id
+		colour= colourEntry.get()
+		item= itemEntry.get()
+		getQuery1= "select item_id, price from clothes where colour=%s and item_name=%s"
+		rec1=(colour,item)
+		cur.execute(getQuery1,rec1)
+		tup=cur.fetchone()
+		item_id= tup[0]
+		price= tup[1]
+		o_status="Order placed"
+		days=daysEntry.get()
+		custname= nameEntry.get()
+		getQuery2= "select cust_id from customer where cust_name=%s"
+		rec2=(custname,)
+		cur.execute(getQuery2,rec2)
+		custid= cur.fetchone()[0]
+		returned="false"
+		
+		insert_query= "insert into order_det values (%s, %s, %s, %s, %s, %s, %s)"
+		record=(order_no, item_id, o_status, price, days, custid, returned)
+
+		cur.execute(insert_query,record)
+		conn.commit()
+		
+		messagebox.showinfo("Order confirmed","Succesfully placed order")
+
+
+	filler=Label(viewClothesFrame, text="").grid(row=15, column=2)
+	placeorder =Label(viewClothesFrame, text= "Place order below: ", font=("Helvetica", 10)).grid(row=16, column=4)
+	nameLabel=Label(viewClothesFrame, text="Enter name", font=("Helvetica", 10)).grid(row=17, column=4)
+	nameEntry= Entry(viewClothesFrame, width=20)
+	nameEntry.grid(row=17, column=5)
+	detLabel=Label(viewClothesFrame, text="Enter colour and name of item", font=("Helvetica", 10)).grid(row=18, column=4)
+	colourEntry= Entry(viewClothesFrame, width=20)
+	colourEntry.grid(row=18, column=5)
+	itemEntry=Entry(viewClothesFrame, width=20)
+	itemEntry.grid(row=18, column=6)
+	daysLabel=Label(viewClothesFrame, text="Enter number of days", font=("Helvetica", 10)).grid(row=19, column=4)
+	daysEntry=Entry(viewClothesFrame, width=20)
+	daysEntry.grid(row=19, column=5)
+	submitButton= Button(viewClothesFrame, text="Place Order", font=("Helvetica", 10), command=submitClick)
+	submitButton.grid(row=20, column=5)
 
 	conn.commit()
 	cur.close()
 	conn.close()
 
+	
+
 def viewOrderClick():
 	global img
 	top= Toplevel()
 	top.title("Order details")
-	top.geometry("800x500")
+	top.geometry("800x600")
 
 	viewOrderFrame =LabelFrame(top, text="View order status", padx=20, pady=20)
 	viewOrderFrame.pack(padx=15, pady=15)
 
-	# img =ImageTk.PhotoImage(Image.open("img\\bag.png"))
-	# imglabel= Label(viewClothesFrame, image=img).grid(row=0, column=2)
+	img =ImageTk.PhotoImage(Image.open("img/bag.png"))
+	imglabel= Label(viewOrderFrame, image=img).grid(row=1, column=2)
 
 	ordernoLabel= Label(viewOrderFrame, text="Enter order number", font=("Helvetica", 12)).grid(row=3, column=1)
-	ordernoEntry =Entry(viewOrderFrame, width=40)
+	ordernoEntry =Entry(viewOrderFrame, width=25)
 	ordernoEntry.grid(row=3, column=2)
 
 	filler= Label(viewOrderFrame, text=" ").grid(row=4, column=1)
 
 	def orderstat_click():
+		global selectedimg
 		orderno= ordernoEntry.get()
 
 		conn= psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
 		cur=conn.cursor()
+
+		quer= "select img from clothes,order_det where clothes.item_id=order_det.item_id"
+		cur.execute(quer)
+		path=cur.fetchone()[0]
+
+		selectedimg =ImageTk.PhotoImage(Image.open(path))
+		img1label= Label(viewOrderFrame, image=selectedimg).grid(row=7, column=2)
 
 		retrievequery="select colour, item_name, o_status, p_status from order_det, payment, clothes \
 		where order_det.order_no =%s and order_det.order_no = payment.order_id and clothes.item_id=order_det.item_id" 
@@ -348,11 +403,11 @@ def viewOrderClick():
 
 		cur.execute(retrievequery,matchval)
 		record=cur.fetchall()
-		j=1
+		j=8
 		for row in record:
 			for stat in row:
 			 	displayLabel=Label(viewOrderFrame, text=str(stat), font=("Helvetica", 12))
-			 	displayLabel.grid(row=6, column=j)
+			 	displayLabel.grid(row=j, column=2)
 			 	j+=1
 		
 		conn.commit()
@@ -361,7 +416,7 @@ def viewOrderClick():
 
 	search_btn= Button(viewOrderFrame, text="Get order status",font=("Helvetica", 12) ,command=orderstat_click)
 	search_btn.grid(row=5, column=2)
-
+	filler=Label(viewOrderFrame, text="").grid(row=6, column=2)
 
 
 def returnOrderClick():
@@ -383,7 +438,6 @@ def returnOrderClick():
 	orderNoEntry.grid(row=4, column=1)
 
 	def EnterBtnClick():
-
 		conn= psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
 		cur= conn.cursor()
 
@@ -391,11 +445,13 @@ def returnOrderClick():
 		matchval=(orderNoEntry.get(),)
 
 		cur.execute(query, matchval)
-
-		displayLabel=Label(returnFrame, text="Return initiated", font=("Helvetica", 12))
-		displayLabel.grid(row=5, column=1)
-
 		conn.commit()
+		filler1=Label(returnFrame, text=" ", font=("Helvetica", 12)).grid(row=5, column=1)
+		displayLabel1=Label(returnFrame, text="Return initiated", font=("Helvetica", 12)).grid(row=6, column=1)
+		displayLabel2=Label(returnFrame, text=" ", font=("Helvetica", 12)).grid(row=7, column=1)
+		filler2=Label(returnFrame, text=" ", font=("Helvetica", 12)).grid(row=8, column=1)
+		displayLabel2=Label(returnFrame, text="Thank you for renting with us!", font=("Helvetica", 15)).grid(row=12, column=1)
+		
 		cur.close()
 		conn.close()
 
@@ -411,29 +467,43 @@ mainFrame.pack(padx=10, pady=10)
 
 mainLabel= Label(mainFrame, text="Clothing Rental service", font=("Helvetica", 30)).grid(row=1, column=2)
 
-landingimg =ImageTk.PhotoImage(Image.open("img\icon.png"))
-landinglabel= Label(mainFrame, image=landingimg).grid(row=2, column=2)
+# landingimg =ImageTk.PhotoImage(Image.open("img\icon.png"))
+# landinglabel= Label(mainFrame, image=landingimg).grid(row=2, column=2)
 
 div1= Label(mainFrame, text=" ").grid(row=3, column=1)
 
-sellerlabel= Label(mainFrame, text="Seller Actions:", font=("Helvetica", 15)).grid(row=4, column=2)
+#sellerlabel= Label(mainFrame, text="Seller Actions:", font=("Helvetica", 15)).grid(row=4, column=2)
 
 #sign up for seller
+sellerimg=ImageTk.PhotoImage(Image.open("img/seller.png"))
+sellerimglabel= Label(mainFrame, image=sellerimg).grid(row=4, column=1)
 sellerpagebtn=Button(mainFrame, text="Sign up as a seller", font=("Helvetica", 12), command=sellerclick).grid(row=5, column=1)
 #add clothes
+clothesimg=ImageTk.PhotoImage(Image.open("img/icon.png"))
+clothesimglabel=Label(mainFrame, image=clothesimg).grid(row=4, column=2)
 clothesbtn=Button(mainFrame, text="Add clothes to store", font=("Helvetica", 12), command=clothesclick).grid(row=5, column=2)
 #add store
-clothesbtn= Button(mainFrame, text="Add store details",font=("Helvetica", 12), command=storeclick).grid(row=5, column=3)
+storeimg=ImageTk.PhotoImage(Image.open("img/shop.png"))
+storeimglabel=Label(mainFrame, image=storeimg).grid(row=4, column=3)
+storebtn= Button(mainFrame, text="Add store details",font=("Helvetica", 12), command=storeclick).grid(row=5, column=3)
 
-div2= Label(mainFrame, text=" ").grid(row=6, column=1)
+div2= Label(mainFrame, text=" ", font=("Helvetica", 15)).grid(row=6, column=1)
 #find clothes to buy
-buyerlabel= Label(mainFrame, text="Buyer Actions:", font=("Helvetica", 15)).grid(row=7, column=2)
-viewclothes= Button(mainFrame, text="View Clothes", font=("Helvetica", 12),command=viewClothesClick).grid(row=8, column=1)
+
+
+#buyerlabel= Label(mainFrame, text="Buyer Actions:", font=("Helvetica", 15)).grid(row=7, column=2)
+viewcimg=ImageTk.PhotoImage(Image.open("img/cart.png"))
+viewclabel=Label(mainFrame, image=viewcimg).grid(row=7, column=1)
+viewclothes= Button(mainFrame, text="View and purchase clothes", font=("Helvetica", 12),command=viewClothesClick).grid(row=8, column=1)
 
 #view order status
+viewoimg=ImageTk.PhotoImage(Image.open("img/clothes.png"))
+viewolabel=Label(mainFrame, image=viewoimg).grid(row=7, column=2)
 vieworder= Button(mainFrame, text="View order details",font=("Helvetica", 12),command=viewOrderClick).grid(row=8, column=2)
 
 #return item
+returnimg=ImageTk.PhotoImage(Image.open("img/delivery.png"))
+returnlabel=Label(mainFrame, image=returnimg).grid(row=7, column=3)
 returnorder= Button(mainFrame, text="Return clothes", font=("Helvetica", 12), command=returnOrderClick).grid(row=8, column=3)
 
 
