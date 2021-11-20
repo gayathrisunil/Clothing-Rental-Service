@@ -246,11 +246,11 @@ def storeclick():
 		insert_query= """insert into store values (%s, %s, row(%s, %s, %s, %s, %s) ,%s)"""
 		record=(s_id,storename,storeline1,storeline2,city,storestate,storezip,storeph)
 
-		cur.execute(insert_query,record)
+		#cur.execute(insert_query,record)
 
-		conn.commit()
-		cur.close()
-		conn.close()
+		# conn.commit()
+		# cur.close()
+		# conn.close()
 
 		storeNameEntry.delete(0, END)
 		storePhEntry.delete(0, END)
@@ -393,9 +393,10 @@ def viewOrderClick():
 		quer= "select img from clothes,order_det where clothes.item_id=order_det.item_id"
 		cur.execute(quer)
 		path=cur.fetchone()[0]
+		#print(path)
 
-		selectedimg =ImageTk.PhotoImage(Image.open(path))
-		img1label= Label(viewOrderFrame, image=selectedimg).grid(row=7, column=2)
+		# selectedimg =ImageTk.PhotoImage(Image.open(path))
+		# img1label= Label(viewOrderFrame, image=selectedimg).grid(row=7, column=2)
 
 		retrievequery="select colour, item_name, o_status, p_status from order_det, payment, clothes \
 		where order_det.order_no =%s and order_det.order_no = payment.order_id and clothes.item_id=order_det.item_id" 
