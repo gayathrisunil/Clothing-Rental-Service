@@ -333,14 +333,16 @@ def viewClothesClick():
 		cur.execute(getQuery2,rec2)
 		custid= cur.fetchone()[0]
 		returned="false"
-		
+		cost=int(days)*int(price)/7
+
 		insert_query= "insert into order_det values (%s, %s, %s, %s, %s, %s, %s)"
-		record=(order_no, item_id, o_status, price, days, custid, returned)
+		record=(order_no, item_id, o_status, cost, days, custid, returned)
 
 		cur.execute(insert_query,record)
 		conn.commit()
-		
-		messagebox.showinfo("Order confirmed","Succesfully placed order")
+
+		msg="Succesfully placed order for Rs."+str(cost)
+		messagebox.showinfo("Order confirmed", msg)
 
 
 	filler=Label(viewClothesFrame, text="").grid(row=15, column=2)
